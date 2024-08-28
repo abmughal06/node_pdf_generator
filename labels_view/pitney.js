@@ -7,7 +7,7 @@ const formatTrackingNumber = require("../utils/format-tracking-fun.js");
 const formatDate = require("../utils/format-date.js");
 
 async function generatePitneyPDF() {
-  console.log("generating pitney label pdf... >>>>>>>>>>>>");
+  console.log("generating pitney label pdf... >>>>>>>>>>>>>>");
   // Create a new PDF document
   const doc = new PDFDocument({
     size: [300, 445], // Adjust size as necessary
