@@ -10,7 +10,7 @@ async function generatePitneyPDF() {
   console.log("generating pitney label pdf... >>>>>>>>>>>>>>");
   // Create a new PDF document
   const doc = new PDFDocument({
-    size: [300, 445], // Adjust size as necessary
+    size: [300, 410], // Adjust size as necessary
     margin: 0,
   });
 
@@ -28,96 +28,133 @@ async function generatePitneyPDF() {
   if (isGroundAdvantage) {
     tag = "G";
   }
-  doc.font("fonts/crepes-outline1.otf").fontSize(80).text(tag, 8, -13);
-  doc.font("fonts/arial-nova.ttf");
+  doc
+    .font("fonts/tt-hoves-pro.ttf")
+    .fontSize(80)
+    .text(tag, isGroundAdvantage ? 8 : 15, -13);
 
   // Draw vertical line
-  doc.moveTo(85, 0).lineTo(85, 80).stroke();
+  doc.moveTo(80, 0).lineTo(80, 80).stroke();
 
-  doc.fontSize(11).text("US POSTAGE", 95, 8);
+  spacePostage = 8;
 
-  doc.fontSize(11).text("PAID", 95, 21);
+  doc
+    .font("fonts/prisma-sans-bold.ttf")
+    .fontSize(8)
+    .text("US POSTAGE", 88, spacePostage);
 
-  doc.fontSize(8).text("IMI", 118, 25);
+  spacePostage += 10;
 
-  doc.fontSize(8).text(formatDate(foundLabel.createdAt), 95, 35);
+  doc.fontSize(8).text("PAID", 88, spacePostage);
 
-  doc.fontSize(8).text(`From   ${foundLabel.from_zip}`, 95, 44);
+  doc.fontSize(8).text("IMI", 118, spacePostage);
 
-  doc.fontSize(8).text(`${foundLabel.weight}lbs 1ozs`, 95, 52);
+  spaceDate = 30;
 
-  doc.fontSize(8).text(`Zone 1`, 95, 60);
+  doc
+    .font("fonts/prisma-sans-roman.ttf")
+    .fontSize(8)
+    .text(formatDate(foundLabel.createdAt), 88, spaceDate);
+
+  spaceDate += 10;
+
+  doc.fontSize(8).text(`From   ${foundLabel.from_zip}`, 88, spaceDate);
+
+  spaceDate += 10;
+
+  doc.fontSize(8).text(`${foundLabel.weight}lbs 1ozs`, 88, spaceDate);
+
+  spaceDate += 10;
+
+  doc.fontSize(8).text(`Zone 1`, 88, spaceDate);
 
   doc.image("./assets/pitney-fixed.png", 165, 8, { width: 135, height: 30 });
 
-  doc.font("./fonts/g-ari-bd.ttf").fontSize(10).text("Pitney Bowes", 162, 42);
+  spacePitney = 42;
   doc
-    .font("./fonts/arial-nova.ttf")
-    .fontSize(9)
-    .text(isGroundAdvantage ? "09010000838" : "090100008888", 240, 53);
-  doc.font("./fonts/g-ari-bd.ttf").fontSize(10).text("CommPrice", 165, 53);
-  doc.font("./fonts/arial-nova.ttf").fontSize(10).text("NO SURCHARGE", 162, 63);
+    .font("./fonts/prisma-sans-bold.ttf")
+    .fontSize(8)
+    .text("Pitney Bowes", 172, spacePitney);
+  spacePitney += 10;
+  doc
+    .font("./fonts/prisma-sans-roman.ttf")
+    .fontSize(8)
+    .text(isGroundAdvantage ? "09010000838" : "090100008888", 235, spacePitney);
+  doc
+    .font("./fonts/prisma-sans-bold.ttf")
+    .fontSize(8)
+    .text("CommPrice", 175, spacePitney);
+  spacePitney += 10;
+  doc
+    .font("./fonts/prisma-sans-roman.ttf")
+    .fontSize(8)
+    .text("NO SURCHARGE", 166, spacePitney);
 
   // Draw line above shipping service name
   doc.moveTo(0, 80).lineTo(300, 80).stroke();
 
   // // Draw Priority Mail/Ground Advantage text
   doc
-    .font("./fonts/g-ari-bd.ttf")
-    .fontSize(20)
+    .font("./fonts/prisma-sans-bold.ttf")
+    .fontSize(isGroundAdvantage ? 15 : 17)
     .text(
       `USPS ${foundLabel.shippingService.toUpperCase()}`,
-      isGroundAdvantage ? 35 : 50,
+      isGroundAdvantage ? 25 : 48,
       84
     );
-  doc.font("./fonts/arial-nova.ttf");
-  doc.image("./assets/pitney-r.png", 255, 83, { width: 13, height: 13 });
+  isGroundAdvantage
+    ? doc.fontSize(12).text("TM", 257, 83)
+    : doc.image("./assets/r-mark.png", 250, 90, { width: 13, height: 13 });
   // Draw line below shipping service name
   doc.moveTo(0, 110).lineTo(300, 110).stroke();
+  doc.font("./fonts/prisma-sans-roman.ttf");
 
   // // Sender address
   let senderAddressCY = 115;
-  doc.fontSize(10).text(foundLabel.from_name.toUpperCase(), 8, senderAddressCY);
+  doc.fontSize(8).text(foundLabel.from_name.toUpperCase(), 8, senderAddressCY);
   if (foundLabel.from_company) {
     doc
-      .fontSize(10)
-      .text(foundLabel.from_company.toUpperCase(), 8, senderAddressCY + 12);
-    senderAddressCY = senderAddressCY + 12;
+      .fontSize(8)
+      .text(foundLabel.from_company.toUpperCase(), 8, senderAddressCY + 10);
+    senderAddressCY = senderAddressCY + 10;
   }
   doc
-    .fontSize(10)
-    .text(foundLabel.from_address1.toUpperCase(), 8, senderAddressCY + 12);
-  senderAddressCY = senderAddressCY + 12;
+    .fontSize(8)
+    .text(foundLabel.from_address1.toUpperCase(), 8, senderAddressCY + 10);
+  senderAddressCY = senderAddressCY + 10;
 
   if (foundLabel.from_address2) {
     doc
-      .fontSize(10)
+      .fontSize(8)
       .text(
         `${foundLabel.from_address2.toUpperCase()}`,
         8,
-        senderAddressCY + 12
+        senderAddressCY + 10
       );
-    senderAddressCY = senderAddressCY + 12;
+    senderAddressCY = senderAddressCY + 10;
   }
 
   doc
-    .fontSize(10)
+    .fontSize(8)
     .text(
       `${foundLabel.from_city.toUpperCase()} ${foundLabel.from_state.toUpperCase()} ${foundLabel.from_zip.toUpperCase()}`,
       8,
-      senderAddressCY + 12
+      senderAddressCY + 10
     );
-  senderAddressCY = senderAddressCY + 12;
+  senderAddressCY = senderAddressCY + 10;
 
   // Add shipping data and weight information
   let formattedDate = formatDate(foundLabel.createdAt);
 
   let dateCY = 115;
-  doc.fontSize(9).text(`Expected Delivery Date ${formattedDate}`, 165, dateCY);
-  dateCY = dateCY + 12;
+  doc.fontSize(7).text(`Expected Delivery Date ${formattedDate}`, 165, dateCY);
+  dateCY = dateCY + 10;
 
   let ran = generateRandomOneToNine();
-  doc.font("./fonts/g-ari-bd.ttf").fontSize(12).text(`000${ran}`, 265, dateCY);
+  doc
+    .font("./fonts/prisma-sans-bold.ttf")
+    .fontSize(8)
+    .text(`000${ran}`, 268, dateCY);
 
   // let ran2 = generateRandomElevenToNinetyNine();
   // doc.font("./fonts/g-ari-bd.ttf").fontSize(14).text(`C0${ran2}`, 218, 210);
@@ -130,35 +167,35 @@ async function generatePitneyPDF() {
   // // Draw the box (a rectangle)
   // doc.rect(boxX, boxY, boxWidth, boxHeight).stroke();
 
-  doc.font("./fonts/arial-nova.ttf");
+  doc.font("./fonts/prisma-sans-roman.ttf");
 
   // Add QR code
   let qrCodePng = await generateQRCode(
     foundLabel.trackingID,
     foundLabel.to_zip
   );
-  doc.image(qrCodePng, 8, 220, { width: 40, height: 40 });
+  doc.image(qrCodePng, 8, 230, { width: 35, height: 35 });
 
   // Add to address
   // // Sender address
-  let recAddressCY = 219;
-  doc.fontSize(12).text(foundLabel.to_name.toUpperCase(), 55, recAddressCY);
+  let recAddressCY = 232;
+  doc.fontSize(8).text(foundLabel.to_name.toUpperCase(), 50, recAddressCY);
   // if (foundLabel.to_company) {
   //   doc
   //     .fontSize(10)
-  //     .text(foundLabel.to_company.toUpperCase(), 55, recAddressCY + 12);
+  //     .text(foundLabel.to_company.toUpperCase(), 45, recAddressCY + 12);
   //   recAddressCY = recAddressCY + 12;
   // }
 
   doc
-    .fontSize(12)
-    .text(foundLabel.to_address1.toUpperCase(), 55, recAddressCY + 15);
-  recAddressCY = recAddressCY + 15;
+    .fontSize(8)
+    .text(foundLabel.to_address1.toUpperCase(), 50, recAddressCY + 10);
+  recAddressCY = recAddressCY + 10;
 
   // if (foundLabel.to_address2) {
   //   doc
   //     .fontSize(10)
-  //     .text(foundLabel.to_address2.toUpperCase(), 55, recAddressCY + 12);
+  //     .text(foundLabel.to_address2.toUpperCase(), 45, recAddressCY + 12);
   //   recAddressCY = recAddressCY + 12;
   // }
 
@@ -169,11 +206,14 @@ async function generatePitneyPDF() {
     " " +
     foundLabel.to_zip;
 
-  doc.fontSize(12).text(receiver_city_state_zip, 55, recAddressCY + 15);
+  doc.fontSize(8).text(receiver_city_state_zip, 50, recAddressCY + 10);
 
   doc.moveTo(0, 280).lineTo(300, 280).stroke();
 
-  doc.fontSize(12).text("USPS TRACKING # EP", 98, 285);
+  doc
+    .font("fonts/prisma-sans-bold.ttf")
+    .fontSize(8)
+    .text("USPS TRACKING # EP", 100, 285);
 
   // Add barcode image
   let barCodePng = await generateBarCode(
@@ -181,21 +221,20 @@ async function generatePitneyPDF() {
     foundLabel.to_zip
   );
 
-  doc.image(barCodePng, 35, 300, { width: 230, height: 55 });
+  doc.image(barCodePng, 35, 295, { width: 230, height: 55 });
 
   doc
-    .font("./fonts/g-ari-bd.ttf")
-    .fontSize(10)
-    .text(formatTrackingNumber(`${foundLabel.trackingID}`), 84, 360);
+    .fontSize(8)
+    .text(formatTrackingNumber(`${foundLabel.trackingID}`), 82, 350);
 
-  doc.font("./fonts/arial-nova.ttf");
+  doc.font("./fonts/prisma-sans-roman.ttf");
 
-  doc.moveTo(0, 380).lineTo(300, 380).stroke();
+  doc.moveTo(0, 365).lineTo(300, 365).stroke();
 
-  doc.fontSize(10).text(foundLabel.note, 10, 390);
+  doc.fontSize(7).text(foundLabel.note, 10, 370);
 
   // add qr code again.
-  doc.image(qrCodePng, 250, 390, { width: 40, height: 40 });
+  doc.image(qrCodePng, 250, 370, { width: 35, height: 35 });
 
   doc.end();
   console.log("generated pitney label check ... outputs/pitney.pdf");

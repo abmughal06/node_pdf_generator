@@ -109,7 +109,8 @@ async function generateRolloPDF() {
     doc.fontSize(10).text(`Weight: ${foundLabel.weight} lb 0 oz`, 215, dateCY);
     dateCY = dateCY + 14;
 
-    doc.fontSize(14).text("0001", 255, dateCY);
+    let ran = generateRandomOneToNine();
+    doc.fontSize(14).text(`000${ran}`, 254, dateCY);
 
     // Add QR code
     let qrCodePng = await generateQRCode(
@@ -188,6 +189,10 @@ async function generateRolloPDF() {
     console.log("Error in generating rollow pdf..", error);
     return null;
   }
+}
+
+function generateRandomOneToNine() {
+  return Math.floor(Math.random() * 9) + 1;
 }
 
 module.exports = generateRolloPDF;
