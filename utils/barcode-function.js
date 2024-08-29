@@ -19,26 +19,27 @@ async function generateBarCode(trackingId, zipCode) {
     // return imageBuffer;
 
     const gifBuffer = Buffer.from(imageBuffer);
-    sharp(gifBuffer)
+    await sharp(gifBuffer)
       .metadata()
-      .then((metadata) => {
+      .then(async (metadata) => {
         const croppedHeight = metadata.height - 19;
         if (croppedHeight < 0) {
           reject(new Error("Crop height exceeds image height"));
         } else {
-          return sharp(gifBuffer)
+          return await sharp(gifBuffer)
             .extract({
               left: 0,
               top: 0,
               width: metadata.width,
               height: croppedHeight,
             })
-            .toFile(`./assets/${trackingId}-barcode.png`);
+            .toFile(`./assets/barcodes/${trackingId}-barcode.png`);
         }
       });
-    return `./assets/${trackingId}-barcode.png`;
+    return `./assets/barcodes/${trackingId}-barcode.png`;
   } catch (error) {
     console.log("error", error);
+    return null;
   }
 }
 

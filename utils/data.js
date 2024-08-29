@@ -1,7 +1,7 @@
 const foundLabel = {
   _id: "66cb646001f951a7abe24563",
   provider: "USPS",
-  shippingService: "Priority Mail",
+  shippingService: "Ground Advantage",
   weight: 5,
   note: "Duck EZ Start 6 Qty",
   from_name: "HALEY MART",

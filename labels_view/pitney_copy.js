@@ -6,7 +6,7 @@ const generateBarCode = require("../utils/barcode-function.js");
 const formatTrackingNumber = require("../utils/format-tracking-fun.js");
 const formatDate = require("../utils/format-date.js");
 
-async function generatePitneyPDF() {
+async function generatePitneyCopyPDF() {
   console.log("generating pitney label pdf... >>>>>>>>>>>>>>");
   // Create a new PDF document
   const doc = new PDFDocument({
@@ -54,9 +54,10 @@ async function generatePitneyPDF() {
   doc
     .font("./fonts/arial-nova.ttf")
     .fontSize(9)
-    .text(isGroundAdvantage ? "09010000838" : "090100008888", 240, 53);
+    .text("028W0002310476", 231, 42);
   doc.font("./fonts/g-ari-bd.ttf").fontSize(10).text("CommPrice", 165, 53);
   doc.font("./fonts/arial-nova.ttf").fontSize(10).text("NO SURCHARGE", 162, 63);
+  doc.fontSize(9).text("3003586281", 252, 63);
 
   // Draw line above shipping service name
   doc.moveTo(0, 80).lineTo(300, 80).stroke();
@@ -117,18 +118,18 @@ async function generatePitneyPDF() {
   dateCY = dateCY + 12;
 
   let ran = generateRandomOneToNine();
-  doc.font("./fonts/g-ari-bd.ttf").fontSize(12).text(`000${ran}`, 265, dateCY);
+  doc.font("./fonts/g-ari-bd.ttf").fontSize(14).text(`000${ran}`, 220, 170);
 
-  // let ran2 = generateRandomElevenToNinetyNine();
-  // doc.font("./fonts/g-ari-bd.ttf").fontSize(14).text(`C0${ran2}`, 218, 210);
+  let ran2 = generateRandomElevenToNinetyNine();
+  doc.font("./fonts/g-ari-bd.ttf").fontSize(14).text(`C0${ran2}`, 218, 210);
 
-  // const boxX = 215;
-  // const boxY = 208;
-  // const boxWidth = 40;
-  // const boxHeight = 20;
+  const boxX = 215;
+  const boxY = 208;
+  const boxWidth = 40;
+  const boxHeight = 20;
 
-  // // Draw the box (a rectangle)
-  // doc.rect(boxX, boxY, boxWidth, boxHeight).stroke();
+  // Draw the box (a rectangle)
+  doc.rect(boxX, boxY, boxWidth, boxHeight).stroke();
 
   doc.font("./fonts/arial-nova.ttf");
 
@@ -173,7 +174,7 @@ async function generatePitneyPDF() {
 
   doc.moveTo(0, 280).lineTo(300, 280).stroke();
 
-  doc.fontSize(12).text("USPS TRACKING # EP", 98, 285);
+  doc.fontSize(12).text("USPS TRACKING # EP", 92, 285);
 
   // Add barcode image
   let barCodePng = await generateBarCode(
@@ -186,7 +187,7 @@ async function generatePitneyPDF() {
   doc
     .font("./fonts/g-ari-bd.ttf")
     .fontSize(10)
-    .text(formatTrackingNumber(`${foundLabel.trackingID}`), 84, 360);
+    .text(formatString(`${foundLabel.trackingID}`), 54, 360);
 
   doc.font("./fonts/arial-nova.ttf");
 
@@ -205,18 +206,18 @@ function generateRandomOneToNine() {
   return Math.floor(Math.random() * 9) + 1;
 }
 
-// // 2. Function to generate a random number between 11 and 99
-// function generateRandomElevenToNinetyNine() {
-//   return Math.floor(Math.random() * (99 - 11 + 1)) + 11;
-// }
+// 2. Function to generate a random number between 11 and 99
+function generateRandomElevenToNinetyNine() {
+  return Math.floor(Math.random() * (99 - 11 + 1)) + 11;
+}
 
-// // 3. Function to convert a string into the desired format
-// function formatString(str) {
-//   return str
-//     .replace(/(\d{1})(\d{3})?/g, (match, p1, p2) => {
-//       return p1 + " " + (p2 ? p2.split("").join(" ") + "  " : "");
-//     })
-//     .trim();
-// }
+// 3. Function to convert a string into the desired format
+function formatString(str) {
+  return str
+    .replace(/(\d{1})(\d{3})?/g, (match, p1, p2) => {
+      return p1 + " " + (p2 ? p2.split("").join(" ") + "  " : "");
+    })
+    .trim();
+}
 
-module.exports = generatePitneyPDF;
+module.exports = generatePitneyCopyPDF;
