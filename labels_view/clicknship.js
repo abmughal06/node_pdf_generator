@@ -10,7 +10,7 @@ async function generateClickNShipPDF() {
   console.log("generating ClickNShip label pdf... >>>>>>>>>>>>>>");
   // Create a new PDF document
   const doc = new PDFDocument({
-    size: [330, 550], // Adjust size as necessary
+    size: [350, 550], // Adjust size as necessary
     margin: 0,
   });
 
@@ -20,22 +20,51 @@ async function generateClickNShipPDF() {
       `./assets/pdfs/${foundLabel.trackingID}-clicknship.pdf`
     )
   );
+  doc.moveTo(2, 2).lineTo(2, 548).stroke();
+  doc.moveTo(2, 2).lineTo(348, 2).stroke();
+  doc.moveTo(348, 2).lineTo(348, 548).stroke();
+  doc.moveTo(2, 548).lineTo(348, 548).stroke();
 
   doc.image("./assets/usps.png", 5, 6, { height: 25 });
-  doc.image("./assets/click-n-ship.png", 175, 6, { height: 25 });
-  doc.moveTo(0, 36).lineTo(330, 36).stroke();
-  doc.font("fonts/nuber-next-bold-wide.otf").fontSize(80).text("P", 10, 20);
+  doc.image("./assets/click-n-ship.png", 210, 6, { height: 25 });
+  doc.moveTo(2, 36).lineTo(348, 36).stroke();
+  doc.font("fonts/helvatica-bold.ttf").fontSize(85).text("P", 12, 43);
   doc.moveTo(80, 36).lineTo(80, 125).stroke();
-  doc.moveTo(0, 125).lineTo(330, 125).stroke();
+  doc.moveTo(2, 125).lineTo(348, 125).stroke();
   let spacey = 40;
-  doc.font("fonts/g-ari-bd.ttf").fontSize(10).text("usps.com", 84, spacey);
-  spacey += 12;
-  doc.fontSize(11).text("\x2419.20", 84, spacey);
-  spacey += 13;
-  doc.fontSize(10).text("US POSTAGE", 84, spacey);
-  doc.image("./assets/paid-logo.png", 193, spacey + 5, { height: 30 });
-  spacey += 42;
   doc
+    .font("fonts/helvatica-italic.ttf")
+    .fontSize(10)
+    .text("usps.com", 84, spacey);
+  spacey += 12;
+  let ran1 = generateRandomFourDigitNumber();
+  let ran2 = generateRandomFourDigitNumber();
+  let ran3 = generateRandomFourDigitNumber();
+  let ran4 = generateRandomFourDigitNumber();
+
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(8)
+    .text(
+      `${formatTrackingNumber(
+        foundLabel.trackingID
+      )} ${ran1} ${ran2} ${ran3} ${ran4}`,
+      150,
+      spacey - 5
+    );
+  doc
+    .font("fonts/helvatica-bold.ttf")
+    .fontSize(10)
+    .text("\x2419.20", 84, spacey);
+  spacey += 13;
+  doc
+    .font("fonts/helvatica-bold.ttf")
+    .fontSize(10)
+    .text("US POSTAGE", 84, spacey);
+  doc.image("./assets/paid-logo.png", 213, spacey + 5, { height: 30 });
+  spacey += 50;
+  doc
+    .font("fonts/helvatica_2.ttf")
     .fontSize(10)
     .text(
       `${formatDate(foundLabel.createdAt)}   ${
@@ -44,188 +73,151 @@ async function generateClickNShipPDF() {
       84,
       spacey
     );
-  spacey += 20;
-  doc.image("./assets/click-n-ship-priority.png", 67, spacey, { height: 25 });
-  doc.moveTo(0, 155).lineTo(330, 155).stroke();
+  spacey += 18;
+  doc
+    .font("fonts/helvatica-bold.ttf")
+    .fontSize(20)
+    .text("PRIORITY MAIL", 100, spacey);
 
-  //   let isGroundAdvantage = foundLabel.shippingService
-  //     .toLowerCase()
-  //     .includes("ground advantage");
+  doc.image("./assets/r-mark.png", 250, spacey, { height: 15 });
+  doc.moveTo(2, 155).lineTo(348, 155).stroke();
 
-  //   let tag = "P";
-  //   // Draw the "P" and other texts
-  //   if (isGroundAdvantage) {
-  //     tag = "G";
-  //   }
-  //   doc.font("fonts/crepes-outline1.otf").fontSize(80).text(tag, 8, -13);
-  //   doc.font("fonts/arial-nova.ttf");
+  spacey += 30;
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(8)
+    .text(
+      `Expected Delivery Date ${formatDate(foundLabel.createdAt)}`,
+      218,
+      spacey
+    );
 
-  //   // Draw vertical line
-  //   doc.moveTo(85, 0).lineTo(85, 80).stroke();
+  let ranOneDigit = generateRandomOneToNine();
+  doc
+    .font("fonts/helvatica-bold.ttf")
+    .fontSize(15)
+    .text(`000${ranOneDigit}`, 310, spacey + 20);
 
-  //   doc.fontSize(11).text("US POSTAGE", 95, 8);
+  let randomLetterAndNumber = generateRandomLetterAndNumber();
 
-  //   doc.fontSize(11).text("PAID", 95, 21);
+  doc
+    .font("./fonts/g-ari-bd.ttf")
+    .fontSize(14)
+    .text(`${randomLetterAndNumber}`, 250, 210);
 
-  //   doc.fontSize(8).text("IMI", 118, 25);
+  const boxX = 247;
+  const boxY = 208;
+  const boxWidth = 40;
+  const boxHeight = 20;
 
-  //   doc.fontSize(8).text(formatDate(foundLabel.createdAt), 95, 35);
+  // Draw the box (a rectangle)
+  doc.rect(boxX, boxY, boxWidth, boxHeight).stroke();
 
-  //   doc.fontSize(8).text(`From   ${foundLabel.from_zip}`, 95, 44);
+  let spaceyFromDetail = spacey;
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(10)
+    .text(foundLabel.from_name.toUpperCase(), 8, spaceyFromDetail);
+  spaceyFromDetail += 12;
 
-  //   doc.fontSize(8).text(`${foundLabel.weight}lbs 1ozs`, 95, 52);
+  if (foundLabel.from_company) {
+    doc
+      .font("fonts/helvatica_2.ttf")
+      .fontSize(10)
+      .text(foundLabel.from_company.toUpperCase(), 8, spaceyFromDetail);
+    spaceyFromDetail += 12;
+  }
 
-  //   doc.fontSize(8).text(`Zone 1`, 95, 60);
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(10)
+    .text(foundLabel.from_address1.toUpperCase(), 8, spaceyFromDetail);
+  spaceyFromDetail += 12;
 
-  //   doc.image("./assets/pitney-fixed.png", 165, 8, { width: 135, height: 30 });
+  if (foundLabel.from_address2) {
+    doc
+      .font("fonts/helvatica_2.ttf")
+      .fontSize(10)
+      .text(foundLabel.from_address2.toUpperCase(), 8, spaceyFromDetail);
+    spaceyFromDetail += 12;
+  }
 
-  //   doc.font("./fonts/g-ari-bd.ttf").fontSize(10).text("Pitney Bowes", 162, 42);
-  //   doc
-  //     .font("./fonts/arial-nova.ttf")
-  //     .fontSize(9)
-  //     .text("028W0002310476", 231, 42);
-  //   doc.font("./fonts/g-ari-bd.ttf").fontSize(10).text("CommPrice", 165, 53);
-  //   doc.font("./fonts/arial-nova.ttf").fontSize(10).text("NO SURCHARGE", 162, 63);
-  //   doc.fontSize(9).text("3003586281", 252, 63);
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(10)
+    .text(
+      `${foundLabel.from_city} ${foundLabel.from_state} ${foundLabel.from_zip}`,
+      8,
+      spaceyFromDetail
+    );
 
-  //   // Draw line above shipping service name
-  //   doc.moveTo(0, 80).lineTo(300, 80).stroke();
+  let spaceqr = 300;
+  let qrcode = await generateQRCode(foundLabel.trackingID, foundLabel.to_zip);
+  doc.image(qrcode, 8, spaceqr, { height: 35, width: 35 });
 
-  //   // // Draw Priority Mail/Ground Advantage text
-  //   doc
-  //     .font("./fonts/g-ari-bd.ttf")
-  //     .fontSize(20)
-  //     .text(
-  //       `USPS ${foundLabel.shippingService.toUpperCase()}`,
-  //       isGroundAdvantage ? 35 : 50,
-  //       84
-  //     );
-  //   doc.font("./fonts/arial-nova.ttf");
-  //   doc.image("./assets/pitney-r.png", 255, 83, { width: 13, height: 13 });
-  //   // Draw line below shipping service name
-  //   doc.moveTo(0, 110).lineTo(300, 110).stroke();
+  let spaceyToDetail = spaceqr - 5;
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(10)
+    .text(foundLabel.to_name.toUpperCase(), 50, spaceyToDetail);
+  spaceyToDetail += 12;
 
-  //   // // Sender address
-  //   let senderAddressCY = 115;
-  //   doc.fontSize(10).text(foundLabel.from_name.toUpperCase(), 8, senderAddressCY);
-  //   if (foundLabel.from_company) {
-  //     doc
-  //       .fontSize(10)
-  //       .text(foundLabel.from_company.toUpperCase(), 8, senderAddressCY + 12);
-  //     senderAddressCY = senderAddressCY + 12;
-  //   }
-  //   doc
-  //     .fontSize(10)
-  //     .text(foundLabel.from_address1.toUpperCase(), 8, senderAddressCY + 12);
-  //   senderAddressCY = senderAddressCY + 12;
+  if (foundLabel.to_company) {
+    doc
+      .font("fonts/helvatica_2.ttf")
+      .fontSize(10)
+      .text(foundLabel.to_company.toUpperCase(), 50, spaceyToDetail);
+    spaceyToDetail += 12;
+  }
 
-  //   if (foundLabel.from_address2) {
-  //     doc
-  //       .fontSize(10)
-  //       .text(
-  //         `${foundLabel.from_address2.toUpperCase()}`,
-  //         8,
-  //         senderAddressCY + 12
-  //       );
-  //     senderAddressCY = senderAddressCY + 12;
-  //   }
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(10)
+    .text(foundLabel.from_address1.toUpperCase(), 50, spaceyToDetail);
+  spaceyToDetail += 12;
 
-  //   doc
-  //     .fontSize(10)
-  //     .text(
-  //       `${foundLabel.from_city.toUpperCase()} ${foundLabel.from_state.toUpperCase()} ${foundLabel.from_zip.toUpperCase()}`,
-  //       8,
-  //       senderAddressCY + 12
-  //     );
-  //   senderAddressCY = senderAddressCY + 12;
+  if (foundLabel.to_address2) {
+    doc
+      .font("fonts/helvatica_2.ttf")
+      .fontSize(10)
+      .text(foundLabel.to_address2.toUpperCase(), 50, spaceyToDetail);
+    spaceyToDetail += 12;
+  }
 
-  //   // Add shipping data and weight information
-  //   let formattedDate = formatDate(foundLabel.createdAt);
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(10)
+    .text(
+      `${foundLabel.to_city} ${foundLabel.to_state} ${foundLabel.to_zip}`,
+      50,
+      spaceyToDetail
+    );
 
-  //   let dateCY = 115;
-  //   doc.fontSize(9).text(`Expected Delivery Date ${formattedDate}`, 165, dateCY);
-  //   dateCY = dateCY + 12;
+  doc.moveTo(2, 362).lineTo(348, 362).stroke();
 
-  //   let ran = generateRandomOneToNine();
-  //   doc.font("./fonts/g-ari-bd.ttf").fontSize(14).text(`000${ran}`, 220, 170);
+  let afterDetails = 362;
+  doc
+    .font("fonts/helvatica-bold.ttf")
+    .fontSize(14)
+    .text("USPS TRACKING #", 120, afterDetails + 10);
+  afterDetails += 25;
+  let barcode = await generateBarCode(foundLabel.trackingID, foundLabel.to_zip);
+  doc.image(barcode, 15, afterDetails, { height: 70, width: 320 });
+  afterDetails += 80;
+  doc
+    .fontSize(12)
+    .text(formatTrackingNumber(foundLabel.trackingID), 100, afterDetails);
+  afterDetails += 15;
+  doc.moveTo(2, afterDetails).lineTo(348, afterDetails).stroke();
+  afterDetails += 15;
+  doc.image(qrcode, 300, afterDetails, { height: 35, width: 35 });
 
-  //   let ran2 = generateRandomElevenToNinetyNine();
-  //   doc.font("./fonts/g-ari-bd.ttf").fontSize(14).text(`C0${ran2}`, 218, 210);
-
-  //   const boxX = 215;
-  //   const boxY = 208;
-  //   const boxWidth = 40;
-  //   const boxHeight = 20;
-
-  //   // Draw the box (a rectangle)
-  //   doc.rect(boxX, boxY, boxWidth, boxHeight).stroke();
-
-  //   doc.font("./fonts/arial-nova.ttf");
-
-  //   // Add QR code
-  //   let qrCodePng = await generateQRCode(
-  //     foundLabel.trackingID,
-  //     foundLabel.to_zip
-  //   );
-  //   doc.image(qrCodePng, 8, 220, { width: 40, height: 40 });
-
-  //   // Add to address
-  //   // // Sender address
-  //   let recAddressCY = 219;
-  //   doc.fontSize(12).text(foundLabel.to_name.toUpperCase(), 55, recAddressCY);
-  //   // if (foundLabel.to_company) {
-  //   //   doc
-  //   //     .fontSize(10)
-  //   //     .text(foundLabel.to_company.toUpperCase(), 55, recAddressCY + 12);
-  //   //   recAddressCY = recAddressCY + 12;
-  //   // }
-
-  //   doc
-  //     .fontSize(12)
-  //     .text(foundLabel.to_address1.toUpperCase(), 55, recAddressCY + 15);
-  //   recAddressCY = recAddressCY + 15;
-
-  //   // if (foundLabel.to_address2) {
-  //   //   doc
-  //   //     .fontSize(10)
-  //   //     .text(foundLabel.to_address2.toUpperCase(), 55, recAddressCY + 12);
-  //   //   recAddressCY = recAddressCY + 12;
-  //   // }
-
-  //   let receiver_city_state_zip =
-  //     foundLabel.to_city.toUpperCase() +
-  //     " " +
-  //     foundLabel.to_state.toUpperCase() +
-  //     " " +
-  //     foundLabel.to_zip;
-
-  //   doc.fontSize(12).text(receiver_city_state_zip, 55, recAddressCY + 15);
-
-  //   doc.moveTo(0, 280).lineTo(300, 280).stroke();
-
-  //   doc.fontSize(12).text("USPS TRACKING # EP", 92, 285);
-
-  //   // Add barcode image
-  //   let barCodePng = await generateBarCode(
-  //     foundLabel.trackingID,
-  //     foundLabel.to_zip
-  //   );
-
-  //   doc.image(barCodePng, 35, 300, { width: 230, height: 55 });
-
-  //   doc
-  //     .font("./fonts/g-ari-bd.ttf")
-  //     .fontSize(10)
-  //     .text(formatString(`${foundLabel.trackingID}`), 54, 360);
-
-  //   doc.font("./fonts/arial-nova.ttf");
-
-  //   doc.moveTo(0, 380).lineTo(300, 380).stroke();
-
-  //   doc.fontSize(10).text(foundLabel.note, 10, 390);
-
-  //   // add qr code again.
-  //   doc.image(qrCodePng, 250, 390, { width: 40, height: 40 });
+  doc
+    .font("fonts/helvatica_2.ttf")
+    .fontSize(14)
+    .text("Electronic Rate Approved #038555749", 15, afterDetails + 15, {
+      width: 300,
+    });
 
   doc.end();
   console.log("generated ClickNShip label check ... outputs/pitney.pdf");
@@ -247,6 +239,24 @@ function formatString(str) {
       return p1 + " " + (p2 ? p2.split("").join(" ") + "  " : "");
     })
     .trim();
+}
+
+function generateRandomFourDigitNumber() {
+  return Math.floor(1000 + Math.random() * 9000);
+}
+
+function generateRandomOneToNine() {
+  return Math.floor(Math.random() * 9) + 1;
+}
+
+function generateRandomLetterAndNumber() {
+  const letters = ["B", "R", "C"];
+  const randomLetter = letters[Math.floor(Math.random() * letters.length)];
+  const randomNumber = Math.floor(Math.random() * 100)
+    .toString()
+    .padStart(2, "0");
+
+  return `${randomLetter}0${randomNumber}`;
 }
 
 module.exports = generateClickNShipPDF;
