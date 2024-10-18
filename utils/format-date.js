@@ -1,4 +1,4 @@
-function formatDate(isoString) {
+exports.formatDate = (isoString) => {
   const date = new Date(isoString);
 
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -6,9 +6,9 @@ function formatDate(isoString) {
   const year = date.getFullYear();
 
   return `${month}/${day}/${year}`;
-}
+};
 
-function formatDateEasyPost(isoString) {
+exports.formatDateEasyPost = (isoString) => {
   const date = new Date(isoString);
 
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -16,7 +16,4 @@ function formatDateEasyPost(isoString) {
   const year = date.getFullYear();
 
   return `${month} - ${day} - ${year}`;
-}
-
-module.exports = formatDate;
-module.exports = formatDateEasyPost;
+};
