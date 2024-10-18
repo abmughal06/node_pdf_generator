@@ -8,7 +8,7 @@ async function generateBarCode(trackingId, zipCode) {
     // Create the barcode URL with dynamic tracking ID
     const firstTwoDigits = trackingId.substring(0, 2);
     const remainingTrackingId = trackingId.substring(2);
-    const barcodeURL = `${baseURL}?S=13&D=~202420${zipCode}\x1D${firstTwoDigits}${remainingTrackingId}&CC=T&CT=T&ST=T&X=0.05&O=0&BBV=0&BBH=0&CG=0&BH=1&LM=0.3&EM=0&CS=0&PT=T&TA=F&CA=&CB=`;
+    const barcodeURL = `${baseURL}?S=13&D=~202420${zipCode}\x1D${firstTwoDigits}${remainingTrackingId}&CC=T&CT=T&ST=T&X=0.05&O=0&BBV=0&BBH=0&CG=0&BH=1.4&LM=0.2&EM=0&CS=0&PT=T&TA=F&CA=&CB=`;
 
     // Request the barcode image
     const response = await axios.get(barcodeURL, {
@@ -33,10 +33,10 @@ async function generateBarCode(trackingId, zipCode) {
               width: metadata.width,
               height: croppedHeight,
             })
-            .toFile(`./assets/barcodes/${trackingId}-barcode.png`);
+            .toFile(`./assets/barcodes/${trackingId}-barcode2.png`);
         }
       });
-    return `./assets/barcodes/${trackingId}-barcode.png`;
+    return `./assets/barcodes/${trackingId}-barcode2.png`;
   } catch (error) {
     console.log("error", error);
     return null;

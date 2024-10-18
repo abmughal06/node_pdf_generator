@@ -146,7 +146,9 @@ async function generateClickNShipPDF() {
     .font("fonts/helvatica_2.ttf")
     .fontSize(10)
     .text(
-      `${foundLabel.from_city} ${foundLabel.from_state} ${foundLabel.from_zip}`,
+      `${foundLabel.from_city.toUpperCase()} ${foundLabel.from_state.toUpperCase()} ${
+        foundLabel.from_zip
+      }`,
       8,
       spaceyFromDetail
     );
@@ -188,7 +190,9 @@ async function generateClickNShipPDF() {
     .font("fonts/helvatica_2.ttf")
     .fontSize(10)
     .text(
-      `${foundLabel.to_city} ${foundLabel.to_state} ${foundLabel.to_zip}`,
+      `${foundLabel.to_city.toUpperCase()} ${foundLabel.to_state.toUpperCase()} ${
+        foundLabel.to_zip
+      }`,
       50,
       spaceyToDetail
     );
@@ -225,20 +229,6 @@ async function generateClickNShipPDF() {
 
 function generateRandomOneToNine() {
   return Math.floor(Math.random() * 9) + 1;
-}
-
-// 2. Function to generate a random number between 11 and 99
-function generateRandomElevenToNinetyNine() {
-  return Math.floor(Math.random() * (99 - 11 + 1)) + 11;
-}
-
-// 3. Function to convert a string into the desired format
-function formatString(str) {
-  return str
-    .replace(/(\d{1})(\d{3})?/g, (match, p1, p2) => {
-      return p1 + " " + (p2 ? p2.split("").join(" ") + "  " : "");
-    })
-    .trim();
 }
 
 function generateRandomFourDigitNumber() {

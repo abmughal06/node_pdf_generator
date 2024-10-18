@@ -168,7 +168,7 @@ async function generateRolloPDF() {
       return null;
     }
     console.log("barCodePng", barCodePng);
-    doc.image(barCodePng, 30, 300, { width: 230, height: 55 });
+    doc.image(barCodePng, 16, 300, { height: 58, width: 258 });
 
     doc
       .fontSize(12)

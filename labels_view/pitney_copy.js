@@ -182,7 +182,7 @@ async function generatePitneyCopyPDF() {
     foundLabel.to_zip
   );
 
-  doc.image(barCodePng, 35, 300, { width: 230, height: 55 });
+  doc.image(barCodePng, 35, 300, { width: 258, height: 58 });
 
   doc
     .font("./fonts/g-ari-bd.ttf")
