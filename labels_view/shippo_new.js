@@ -203,7 +203,7 @@ async function generateShippoNewPDF() {
     doc.fontSize(10).text("USPS TRACKING # EP", 85, 295);
 
     // Add barcode image
-    let barCodePng = generateNewBarcode(
+    let barCodePng = await generateBarCode(
       foundLabel.trackingID,
       foundLabel.to_zip
     );
