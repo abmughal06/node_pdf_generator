@@ -2,7 +2,7 @@ const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const foundLabel = require("../utils/data.js");
 const generateQRCode = require("../utils/qr-function.js");
-const generateBarCode = require("../utils/barcode-function.js");
+// const generateBarCode = require("../utils/barcode-function.js");
 const formatTrackingNumber = require("../utils/format-tracking-fun.js");
 const { formatDate } = require("../utils/format-date.js");
 const generateNewBarcode = require("../utils/new-barcode_fun.js");
@@ -17,7 +17,7 @@ async function generateShippoNewPDF() {
       margin: 0,
     });
 
-    let pdfNamePath = `./assets/pdfs/${foundLabel.trackingID}-shippo-new.pdf`;
+    let pdfNamePath = `./assets/pdfs/shippo-new.pdf`;
     // Output to a file
     doc.pipe(fs.createWriteStream(pdfNamePath));
 
@@ -203,15 +203,11 @@ async function generateShippoNewPDF() {
     doc.fontSize(10).text("USPS TRACKING # EP", 85, 295);
 
     // Add barcode image
-    let barCodePng = await generateBarCode(
+    let barCodePng = await generateNewBarcode(
       foundLabel.trackingID,
       foundLabel.to_zip
     );
 
-    if (!barCodePng) {
-      return null;
-    }
-    console.log("barCodePng", barCodePng);
     doc.image(barCodePng, 16, 310, { height: 58, width: 258 });
 
     doc
