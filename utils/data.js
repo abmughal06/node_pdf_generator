@@ -88,7 +88,7 @@ const foundLabel = {
   to_address1: "PO Box 3126",
   to_address2: "",
   to_city: "Vega Alta",
-  to_state: "PR",
+  to_state: "CA",
   to_zip: "75074",
   to_country: "USA",
   length: 16,
@@ -97,7 +97,7 @@ const foundLabel = {
   vendor: "Rollo",
   trackingID: "92001488909427020922176707",
   userId: "66ca4c75d04c92b1a8798618",
-  createdAt: "2024-10-16T17:05:36.847Z",
+  createdAt: "2024-12-02T17:05:36.847Z",
   updatedAt: "2024-09-05T17:05:36.847Z",
   __v: 0,
 };
