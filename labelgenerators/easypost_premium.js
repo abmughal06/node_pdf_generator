@@ -38,10 +38,10 @@ async function generateEasypostPremiumPDF() {
     doc.moveTo(75, 0).lineTo(75, 90).stroke();
 
     // Define the position and dimensions of the box
-    const boxX = isGroundAdvantage ? 140 : 180;
+    const boxX = 180;
     const boxY = 12;
-    const boxWidth = isGroundAdvantage ? 130 : 90;
-    const boxHeight = 50;
+    const boxWidth = 90;
+    const boxHeight = isGroundAdvantage ? 60 : 50;
 
     // Draw the box (a rectangle)
     doc.rect(boxX, boxY, boxWidth, boxHeight).stroke(); // `stroke()` draws the border, `fillAndStroke()` will fill and then draw the border
@@ -50,23 +50,30 @@ async function generateEasypostPremiumPDF() {
     doc
       .fontSize(8)
       .text(
-        isGroundAdvantage ? "USPS GROUND ADVANTAGE" : "PRIORITY MAIL",
-        isGroundAdvantage ? boxX + 3 : boxX + 12,
+        isGroundAdvantage ? "USPS GROUND" : "PRIORITY MAIL",
+        isGroundAdvantage ? boxX + 12 : boxX + 12,
         boxY + 5
       );
+    if (isGroundAdvantage) {
+      doc.fontSize(8).text("ADVANTAGE", boxX + 18, boxY + 15);
+    }
     doc
       .fontSize(8)
       .text(
         "U.S. POSTAGE PAID",
-        isGroundAdvantage ? boxX + 23 : boxX + 2,
-        boxY + 15
+        boxX + 2,
+        isGroundAdvantage ? boxY + 25 : boxY + 15
       );
     doc
       .fontSize(8)
-      .text("EASYPOST", isGroundAdvantage ? boxX + 43 : boxX + 20, boxY + 25);
+      .text("EASYPOST", boxX + 22, isGroundAdvantage ? boxY + 35 : boxY + 25);
     doc
       .fontSize(8)
-      .text("eVS", isGroundAdvantage ? boxX + 58 : boxX + 35, boxY + 35);
+      .text(
+        isGroundAdvantage ? "ePOSTAGE" : "eVS",
+        isGroundAdvantage ? boxX + 22 : boxX + 35,
+        isGroundAdvantage ? boxY + 45 : boxY + 35
+      );
 
     // Draw line above shipping service name
     doc.moveTo(0, 90).lineTo(288, 90).stroke();
@@ -136,20 +143,37 @@ async function generateEasypostPremiumPDF() {
         150
       );
 
-    doc.fontSize(8).text("SHIP TO: ", 11, 190);
+    let ran2 = generateRandomElevenToNinetyNine();
+    doc.fontSize(11).text(`C0${ran2}`, 156, 185);
+
+    const boxX2 = 150;
+    const boxY2 = 182;
+    const boxWidth2 = 40;
+    const boxHeight2 = 20;
+
+    doc.rect(boxX2, boxY2, boxWidth2, boxHeight2).stroke();
+
+    doc
+      .font("./fonts/helvatica-bold.ttf")
+      .fontSize(14)
+      .text(`000${generateRandomOneToNine()}`, 220, 165);
+
+    doc.font("./fonts/helvatica_2.ttf");
+
+    doc.fontSize(8).text("SHIP TO: ", 11, 210);
 
     // Add QR code
     let qrCodePng = await generateQRCode(
       foundLabel.trackingID,
       foundLabel.to_zip
     );
-    doc.image(qrCodePng, 11, 205, { width: 30, height: 30 });
+    doc.image(qrCodePng, 11, 225, { width: 30, height: 30 });
 
     let shiptodetailx = 55;
 
     // Add to address
     // // Sender address
-    let recAddressCY = 190;
+    let recAddressCY = 210;
     doc
       .fontSize(9)
       .text(foundLabel.to_name.toUpperCase(), shiptodetailx, recAddressCY);
@@ -192,7 +216,7 @@ async function generateEasypostPremiumPDF() {
       foundLabel.to_zip;
 
     doc
-      .fontSize(11)
+      .fontSize(12)
       .text(receiver_city_state_zip, shiptodetailx, recAddressCY + 12);
 
     doc.moveTo(0, 290).lineTo(288, 290).stroke();
@@ -219,8 +243,8 @@ async function generateEasypostPremiumPDF() {
     doc.moveTo(0, 396).lineTo(288, 396).stroke();
     doc.moveTo(0, 397).lineTo(288, 397).stroke();
 
-    doc.image("./assets/easypost-premium-assets/easypost.png", 85, 402, {
-      height: 30,
+    doc.image("./assets/easypost-premium-assets/easypost.png", 88, 407, {
+      height: 27,
     });
     doc.image(qrCodePng, 245, 405, { width: 30, height: 30 });
 
@@ -238,6 +262,10 @@ async function generateEasypostPremiumPDF() {
 
 function generateRandomOneToNine() {
   return Math.floor(Math.random() * 9) + 1;
+}
+// 2. Function to generate a random number between 11 and 99
+function generateRandomElevenToNinetyNine() {
+  return Math.floor(Math.random() * (99 - 11 + 1)) + 11;
 }
 
 module.exports = generateEasypostPremiumPDF;

@@ -70,7 +70,7 @@
 const foundLabel = {
   _id: "66cb646001f951a7abe24563",
   provider: "USPS",
-  shippingService: "ground advantage",
+  shippingService: "priority mail",
   weight: 2,
   note: "",
   from_name: "1 qty azaro performs",
