@@ -20,8 +20,8 @@ async function generateUPS2ndDayAir() {
   let tracking = foundLabelUPS.trackingID;
 
   let pdfNamePath = `./assets/pdfs/2nd-day-air.pdf`;
-  let fontRegular = "fonts/FSAlbert-Regular.otf";
-  let fontBold = "fonts/FSAlbBol.otf";
+  let fontRegular = "fonts/RobotoCondensed-Medium.ttf";
+  let fontBold = "fonts/RobotoCondensed-Bold.ttf";
   // Output to a file
   doc.pipe(fs.createWriteStream(pdfNamePath));
 
@@ -170,7 +170,7 @@ async function generateUPS2ndDayAir() {
   doc
     .fontSize(toDetailsFontSize)
     .text(useToAddress.toUpperCase(), toDetailsSpaceY, toDetailsSpaceX);
-  // toDetailsSpaceX += toDetailsDiff;
+  toDetailsSpaceX += toDetailsDiff;
   if (useAddress.length > 40) {
     toDetailsSpaceX += toDetailsDiff;
   }
@@ -200,7 +200,7 @@ async function generateUPS2ndDayAir() {
     .font(fontBold)
     .fontSize(22)
     .text(
-      `${foundLabelUPS.to_state.toUpperCase()} ${cropZipCode} 9-04`,
+      `${foundLabelUPS.to_state.toUpperCase()} ${cropZipCode} ${getRandomDigit()}-${getRandomDoubleDigit()}`,
       95,
       185
     );
@@ -211,7 +211,7 @@ async function generateUPS2ndDayAir() {
   doc.image(barcodePng1, 105, 210, { width: 100, height: 40 });
 
   doc.font(fontBold).fontSize(22).text("UPS 2ND DAY AIR", 8, 266);
-  doc.font(fontBold).fontSize(22).text("2", 250, 272);
+  doc.font(fontBold).fontSize(28).text("2", 250, 267);
   doc
     .font(fontRegular)
     .fontSize(8)
@@ -246,6 +246,15 @@ function formatTrackingNumber(trackingNumber) {
     /^(.{2})(.{3})(.{3})(.{2})(.{4})(.{4})$/,
     "$1 $2 $3 $4 $5 $6"
   );
+}
+
+function getRandomDigit() {
+  return Math.floor(Math.random() * 10);
+}
+
+// Function to get a random two-digit number (00-99)
+function getRandomDoubleDigit() {
+  return String(Math.floor(Math.random() * 100)).padStart(2, "0");
 }
 
 module.exports = generateUPS2ndDayAir;

@@ -46,7 +46,7 @@ exports.foundLabelUPS = {
   from_company: "ortega inc",
   from_phone: "03058768505",
   from_address1: "15Nadal place sadasda sdasdas",
-  from_address2: "sadas sdas dasd",
+  from_address2: "",
   from_city: "Staten island",
   from_state: "NY",
   from_zip: "10314",
