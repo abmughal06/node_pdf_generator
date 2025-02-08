@@ -9,7 +9,7 @@ const {
 const { generateMaxicode } = require("../utils/maxicode-function.js");
 const { generateBarCodeForUPS } = require("../utils/barcode-function.js");
 
-async function generateUPS2ndDayAir() {
+async function generateUPSGround() {
   console.log("generating ups 2nd day air new label pdf... >>>>>>>>>>>>>>");
   // Create a new PDF document
   const doc = new PDFDocument({
@@ -19,7 +19,7 @@ async function generateUPS2ndDayAir() {
 
   let tracking = foundLabelUPS.trackingID;
 
-  let pdfNamePath = `./assets/pdfs/${tracking}-2nd-day-air.pdf`;
+  let pdfNamePath = `./assets/pdfs/ups-ground.pdf`;
   let fontRegular = "fonts/RobotoCondensed-Medium.ttf";
   let fontBold = "fonts/RobotoCondensed-Bold.ttf";
   // Output to a file
@@ -77,6 +77,16 @@ async function generateUPS2ndDayAir() {
       .fontSize(fromDetailsDiff)
       .text(
         foundLabelUPS.from_company.toUpperCase(),
+        fromDetailsSpaceY,
+        fromDetailsSpaceX
+      );
+    fromDetailsSpaceX += fromDetailsDiff;
+  }
+  if (foundLabelUPS.from_phone) {
+    doc
+      .fontSize(fromDetailsDiff)
+      .text(
+        foundLabelUPS.from_phone.toUpperCase(),
         fromDetailsSpaceY,
         fromDetailsSpaceX
       );
@@ -164,6 +174,16 @@ async function generateUPS2ndDayAir() {
       );
     toDetailsSpaceX += toDetailsDiff;
   }
+  if (foundLabelUPS.to_phone) {
+    doc
+      .fontSize(fromDetailsDiff)
+      .text(
+        foundLabelUPS.to_phone.toUpperCase(),
+        toDetailsSpaceY,
+        toDetailsSpaceX
+      );
+      toDetailsSpaceX += toDetailsDiff;
+  }
   let completeToAddress =
     foundLabelUPS.to_address1 + " " + foundLabelUPS.to_address2;
   let useToAddress = completeToAddress.trim();
@@ -198,34 +218,35 @@ async function generateUPS2ndDayAir() {
 
   doc
     .font(fontBold)
-    .fontSize(22)
+    .fontSize(24)
     .text(
       `${foundLabelUPS.to_state.toUpperCase()} ${cropZipCode} ${getRandomDigit()}-${getRandomDoubleDigit()}`,
-      95,
-      185
+      100,
+      180
     );
 
   //code 128 type set c barcode
   let barcodePng1 = await generateNewBarcode1UPS(foundLabelUPS.to_zip, "0000");
 
-  doc.image(barcodePng1, 105, 210, { width: 100, height: 40 });
+  doc.image(barcodePng1, 105, 210, { width: 102, height: 42 });
 
-  doc.font(fontBold).fontSize(22).text("UPS 2ND DAY AIR", 8, 266);
-  doc.font(fontBold).fontSize(28).text("2", 250, 267);
+  doc.font(fontBold).fontSize(22).text("UPS GROUND", 8, 264);
+  doc.image("./assets/ups-ground-assets/black-img.png", 252, 264, {width: 45, height: 40});
   doc
     .font(fontRegular)
-    .fontSize(8)
+    .fontSize(9)
     .text(
-      `TRACKING #: ${formatTrackingNumber(foundLabelUPS.trackingID)}`,
-      11,
+      `TRACKING #: ${formatTrackingNumber(tracking)}`,
+      9,
       290
     );
 
-  let barcodePng2 = await generateNewBarcode2UPS(foundLabelUPS.trackingID);
+  let barcodePng2 = await generateNewBarcode2UPS(tracking);
 
   doc.image(barcodePng2, 30, 310, { width: 230, height: 70 });
 
   doc.font(fontRegular).fontSize(10).text("BILLING: P/P", 7, 398);
+  doc.font(fontRegular).fontSize(10).text(foundLabelUPS.note, 7, 407);
 
   doc
     .font(fontRegular)
@@ -257,4 +278,4 @@ function getRandomDoubleDigit() {
   return String(Math.floor(Math.random() * 100)).padStart(2, "0");
 }
 
-module.exports = generateUPS2ndDayAir;
+module.exports = generateUPSGround;

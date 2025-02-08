@@ -12,6 +12,7 @@ const shipperNumberArray = [
   "82V063",
   "Y84W31",
   "6AT366",
+  "B8B866"
 ];
 
 function getRandomShipperNumber() {
@@ -19,10 +20,23 @@ function getRandomShipperNumber() {
   return shipperNumberArray[randomIndex];
 }
 
-function generateUPSTracking() {
+function generateUPS2ndDayTracking() {
   const prefix = "1Z";
   const shipperNumber = getRandomShipperNumber(); // Replace with a real shipper number if needed
   const serviceCode = "02"; // 2nd Day Air
+  const packageIdentifier = String(
+    Math.floor(1000000 + Math.random() * 9000000)
+  ); // 7-digit random number
+
+  const trackingWithoutCheckDigit = `${prefix}${shipperNumber}${serviceCode}${packageIdentifier}`;
+  const checkDigit = calculateCheckDigit(trackingWithoutCheckDigit);
+
+  return `${trackingWithoutCheckDigit}${checkDigit}`;
+}
+function generateUPSGroundTracking() {
+  const prefix = "1Z";
+  const shipperNumber = getRandomShipperNumber(); // Replace with a real shipper number if needed
+  const serviceCode = "03"; // 2nd Day Air
   const packageIdentifier = String(
     Math.floor(1000000 + Math.random() * 9000000)
   ); // 7-digit random number
@@ -46,7 +60,7 @@ function calculateCheckDigit(trackingNumber) {
 
 exports.generateNewUPSID = () => {
   try {
-    const newTracking = generateUPSTracking();
+    const newTracking = generateUPSGroundTracking();
     const tracking = getTracking(newTracking);
     if (tracking) {
       return tracking.trackingNumber;
