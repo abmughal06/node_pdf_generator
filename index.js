@@ -1,3 +1,4 @@
+const generateEasypostNewPDF = require("./labelgenerators/easypost-new");
 const generateEasypostPremiumPDF = require("./labelgenerators/easypost_premium");
 const generatePitneyNewPDF = require("./labelgenerators/pitney_new");
 const generateUPS2ndDayAir = require("./labelgenerators/ups_2nd_day_air");
@@ -21,7 +22,9 @@ function main() {
   // generateBulk2ndDayAir();
   // generateUPS2ndDayAir(foundLabelUPS);
   // generateUPSNextDayAir(foundLabelUPS);
-  generateUSPSPriorityMailPDF();
+  // generateUSPSPriorityMailPDF();
+  // generateEasypostPremiumPDF();
+  generateEasypostNewPDF();
 }
 
 async function generateBulkUPSGround(){
