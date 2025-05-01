@@ -40,3 +40,24 @@ exports.getZone = (stateAbbr1, stateAbbr2) => {
   if (distance <= 1800) return "Zone 7";
   return "Zone 8";
 };
+
+exports.getZone2 = (stateAbbr1, stateAbbr2) => {
+  const coord1 = stateCoordinates[stateAbbr1.toUpperCase()];
+  const coord2 = stateCoordinates[stateAbbr2.toUpperCase()];
+
+  if (!coord1 || !coord2) {
+    return "1";
+  }
+
+  const distance = haversineDistance(coord1, coord2);
+
+  // Define zones based on distance ranges
+  if (distance <= 50) return "1";
+  if (distance <= 150) return "2";
+  if (distance <= 300) return "3";
+  if (distance <= 600) return "4";
+  if (distance <= 1000) return "5";
+  if (distance <= 1400) return "6";
+  if (distance <= 1800) return "7";
+  return "8";
+};

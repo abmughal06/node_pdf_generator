@@ -20,6 +20,10 @@ async function generateEasyPostPDF() {
     // Output to a file
     doc.pipe(fs.createWriteStream(pdfNamePath));
 
+    let fontBold = "fonts/RobotoCondensed-Bold.ttf";
+    let fontRegular = "fonts/RobotoCondensed-Regular.ttf";
+    let fontMedium = "fonts/RobotoCondensed-Medium.ttf";
+
     doc.font("fonts/Helvetica.ttf");
 
     let isGroundAdvantage = foundLabel.shippingService
@@ -52,7 +56,7 @@ async function generateEasyPostPDF() {
     doc.moveTo(0, 80).lineTo(288, 80).stroke();
 
     // // Draw Priority Mail/Ground Advantage text
-    doc
+    doc.font(fontRegular)
       .fontSize(isGroundAdvantage ? 17 : 20)
       .text(
         isGroundAdvantage ? "USPS GROUND ADVANTAGE" : "USPS PRIORITY MAIL",

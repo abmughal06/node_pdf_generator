@@ -12,7 +12,10 @@ const shipperNumberArray = [
   "82V063",
   "Y84W31",
   "6AT366",
-  "B8B866"
+  "B8B866",
+  "5R8815",
+  "869107",
+  "1XF792",
 ];
 
 function getRandomShipperNumber() {
@@ -33,10 +36,25 @@ function generateUPS2ndDayTracking() {
 
   return `${trackingWithoutCheckDigit}${checkDigit}`;
 }
+
 function generateUPSGroundTracking() {
   const prefix = "1Z";
   const shipperNumber = getRandomShipperNumber(); // Replace with a real shipper number if needed
   const serviceCode = "03"; // 2nd Day Air
+  const packageIdentifier = String(
+    Math.floor(1000000 + Math.random() * 9000000)
+  ); // 7-digit random number
+
+  const trackingWithoutCheckDigit = `${prefix}${shipperNumber}${serviceCode}${packageIdentifier}`;
+  const checkDigit = calculateCheckDigit(trackingWithoutCheckDigit);
+
+  return `${trackingWithoutCheckDigit}${checkDigit}`;
+}
+
+function generateUPSNextDayTracking() {
+  const prefix = "1Z";
+  const shipperNumber = getRandomShipperNumber(); // Replace with a real shipper number if needed
+  const serviceCode = "01"; // 2nd Day Air
   const packageIdentifier = String(
     Math.floor(1000000 + Math.random() * 9000000)
   ); // 7-digit random number
@@ -58,14 +76,42 @@ function calculateCheckDigit(trackingNumber) {
   return (10 - (sum % 10)) % 10; // Mod 10 check digit
 }
 
-exports.generateNewUPSID = () => {
+exports.generateNewUPSGroundID = () => {
   try {
     const newTracking = generateUPSGroundTracking();
     const tracking = getTracking(newTracking);
     if (tracking) {
       return tracking.trackingNumber;
     } else {
-      return exports.generateNewUPSID();
+      return exports.generateNewUPSGroundID();
+    }
+  } catch (e) {
+    console.log("Error on generating new ups key", e);
+  }
+};
+
+exports.generateNewUPSNextDayAirID = () => {
+  try {
+    const newTracking = generateUPSNextDayTracking();
+    const tracking = getTracking(newTracking);
+    if (tracking) {
+      return tracking.trackingNumber;
+    } else {
+      return exports.generateNewUPSNextDayAirID();
+    }
+  } catch (e) {
+    console.log("Error on generating new ups key", e);
+  }
+};
+
+exports.generateNewUPS2ndDayAirID = () => {
+  try {
+    const newTracking = generateUPS2ndDayTracking();
+    const tracking = getTracking(newTracking);
+    if (tracking) {
+      return tracking.trackingNumber;
+    } else {
+      return exports.generateNewUPS2ndDayAirID();
     }
   } catch (e) {
     console.log("Error on generating new ups key", e);

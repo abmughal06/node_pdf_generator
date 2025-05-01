@@ -1,7 +1,7 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const { formatUPSDate } = require("../utils/format-date.js");
-const { foundLabelUPS } = require("../utils/data.js");
+// const { foundLabelUPS } = require("../utils/data.js");
 const {
   generateNewBarcode2UPS,
   generateNewBarcode1UPS,
@@ -9,7 +9,7 @@ const {
 const { generateMaxicode } = require("../utils/maxicode-function.js");
 const { generateBarCodeForUPS } = require("../utils/barcode-function.js");
 
-async function generateUPS2ndDayAir() {
+async function generateUPS2ndDayAir(foundLabelUPS) {
   console.log("generating ups 2nd day air new label pdf... >>>>>>>>>>>>>>");
   // Create a new PDF document
   const doc = new PDFDocument({
@@ -18,8 +18,10 @@ async function generateUPS2ndDayAir() {
   });
 
   let tracking = foundLabelUPS.trackingID;
+  let packageWeight = Math.round(foundLabelUPS.weight);
 
-  let pdfNamePath = `./assets/pdfs/${tracking}-2nd-day-air.pdf`;
+  let pdfNamePath = `./assets/pdfs/ups-2nd-day-air.pdf`;
+  // let pdfNamePath = `./assets/pdfs/${tracking}-2nd-day-air.pdf`;
   let fontRegular = "fonts/RobotoCondensed-Medium.ttf";
   let fontBold = "fonts/RobotoCondensed-Bold.ttf";
   // Output to a file
@@ -82,6 +84,12 @@ async function generateUPS2ndDayAir() {
       );
     fromDetailsSpaceX += fromDetailsDiff;
   }
+  if (foundLabelUPS.from_phone) {
+    doc
+      .fontSize(fromDetailsDiff)
+      .text(foundLabelUPS.from_phone, fromDetailsSpaceY, fromDetailsSpaceX);
+    fromDetailsSpaceX += fromDetailsDiff;
+  }
   let completeAddress =
     foundLabelUPS.from_address1 + " " + foundLabelUPS.from_address2;
   let useAddress = completeAddress.trim();
@@ -114,12 +122,12 @@ async function generateUPS2ndDayAir() {
   doc
     .font(fontBold)
     .fontSize(12)
-    .text(foundLabelUPS.weight + " LBS", 160, 6);
+    .text(packageWeight + " LBS", 160, 6);
   doc.fontSize(12).text("1 OF 1", 220, 6);
   doc
     .font(fontRegular)
     .fontSize(8)
-    .text("SHP WT: " + foundLabelUPS.weight + " LBS", 180, 22);
+    .text("SHP WT: " + packageWeight + " LBS", 180, 22);
   doc
     .fontSize(8)
     .text(
@@ -164,6 +172,14 @@ async function generateUPS2ndDayAir() {
       );
     toDetailsSpaceX += toDetailsDiff;
   }
+
+  if (foundLabelUPS.to_phone) {
+    doc
+      .fontSize(toDetailsFontSize)
+      .text(foundLabelUPS.to_phone, toDetailsSpaceY, toDetailsSpaceX);
+    toDetailsSpaceX += toDetailsDiff;
+  }
+
   let completeToAddress =
     foundLabelUPS.to_address1 + " " + foundLabelUPS.to_address2;
   let useToAddress = completeToAddress.trim();
@@ -198,17 +214,20 @@ async function generateUPS2ndDayAir() {
 
   doc
     .font(fontBold)
-    .fontSize(22)
+    .fontSize(24)
     .text(
       `${foundLabelUPS.to_state.toUpperCase()} ${cropZipCode} ${getRandomDigit()}-${getRandomDoubleDigit()}`,
-      95,
-      185
+      100,
+      180
     );
 
-  //code 128 type set c barcode
-  let barcodePng1 = await generateNewBarcode1UPS(foundLabelUPS.to_zip, "0000");
+  let zip1 = foundLabelUPS.to_zip.substring(0, 5);
+  let zip2 = foundLabelUPS.to_zip.substring(7, 11) ?? "0000";
 
-  doc.image(barcodePng1, 105, 210, { width: 100, height: 40 });
+  //code 128 type set c barcode
+  let barcodePng1 = await generateNewBarcode1UPS(foundLabelUPS.to_zip);
+
+  doc.image(barcodePng1, 105, 210, { width: 102, height: 42 });
 
   doc.font(fontBold).fontSize(22).text("UPS 2ND DAY AIR", 8, 266);
   doc.font(fontBold).fontSize(28).text("2", 250, 267);
