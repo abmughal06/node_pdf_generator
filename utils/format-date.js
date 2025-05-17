@@ -7,6 +7,16 @@ exports.formatDate = (isoString) => {
 
   return `${month}/${day}/${year}`;
 };
+exports.formatDateShippo = (isoString) => {
+  const date = new Date(isoString);
+
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const day = date.getDate().toString().padStart(2, "0");
+  // const year = date.getFullYear();
+  const year2 = date.getFullYear().toString().slice(-2);
+
+  return `${month}/${day}/${year2}`;
+};
 exports.formatDateEasypostNew = (isoString) => {
   const date = new Date(isoString);
 

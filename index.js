@@ -1,11 +1,14 @@
 const generateEasypostNewPDF = require("./labelgenerators/easypost-new");
 const generateEasypostPremiumPDF = require("./labelgenerators/easypost_premium");
 const generatePitneyNewPDF = require("./labelgenerators/pitney_new");
+const generateRolloExpressPDF = require("./labelgenerators/rollo_express");
+const generateShippoNewPDF = require("./labelgenerators/shippo_new");
+const generateStampsPDF = require("./labelgenerators/stamps");
 const generateUPS2ndDayAir = require("./labelgenerators/ups_2nd_day_air");
 const generateUPSGround = require("./labelgenerators/ups_ground");
 const generateUPSNextDayAir = require("./labelgenerators/ups_next_day_air");
 const generateUSPSPriorityMailPDF = require("./labelgenerators/usps_priority_mail");
-const { foundLabelList, foundLabelUPS } = require("./utils/data");
+const { foundLabelList, foundLabelUPS, foundLabel } = require("./utils/data");
 
 function main() {
   // generatePitneyPDF();
@@ -24,7 +27,10 @@ function main() {
   // generateUPSNextDayAir(foundLabelUPS);
   // generateUSPSPriorityMailPDF();
   // generateEasypostPremiumPDF();
-  generateEasypostNewPDF();
+  // generateRolloExpressPDF();
+  generateStampsPDF();
+  // generateEasypostNewPDF();
+  // generateShippoNewPDF(foundLabel);
 }
 
 async function generateBulkUPSGround(){

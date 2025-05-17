@@ -1,27 +1,68 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
-const foundLabel = require("../utils/data.js");
-const generateQRCode = require("../utils/qr-function.js");
-// const generateBarCode = require("../utils/barcode-function.js");
-const formatTrackingNumber = require("../utils/format-tracking-fun.js");
-const { formatDate } = require("../utils/format-date.js");
-const generateNewBarcode = require("../utils/new-barcode_fun.js");
+const path = require("path");
 
-async function generateShippoNewPDF() {
+const { generateNewBarcode } = require("../utils/new-barcode_fun.js");
+
+const generateQRCode = require("../utils/qr-function.js");
+const formatTrackingNumber = require("../utils/format-tracking-fun.js");
+const { formatDateShippo } = require("../utils/format-date.js");
+// const { getPartBeforeDash } = require("../utils/get-part-before-dash.js");
+
+async function generateShippoNewPDF(foundLabel, csvFileID) {
   try {
     console.log("generating Shippo NEW label pdf... >>>>>>>>>>>>");
 
     // Create a new PDF document
     const doc = new PDFDocument({
-      size: [288, 450], // Adjust size as necessary
+      size: [320, 470], // Adjust size as necessary
       margin: 0,
     });
 
+    // let pdfNamePath = `./assets/pdfs/shippo-new.pdf`;
+    let toName = foundLabel.to_name?.trim().replace(/[ /\\]/g, "-");
+
+    let serialNumber = foundLabel.serialNumber ? foundLabel.serialNumber : 1;
     let pdfNamePath = `./assets/pdfs/shippo-new.pdf`;
+
+    // generate new folder for bulk files
+    if (csvFileID) {
+      let bulkFilesPath = path.join(__dirname, "../", "bulk_files");
+      let newFolderPath = `${bulkFilesPath}/${csvFileID}`;
+      if (!fs.existsSync(newFolderPath)) {
+        // fs.mkdirSync(newFolderPath);
+        fs.mkdir(newFolderPath, { recursive: true }, (err) => {
+          if (err) {
+            return console.error("Error creating folder:", err);
+          }
+          console.log("Folder created successfully:", newFolderPath);
+        });
+      }
+      pdfNamePath = `./bulk_files/${csvFileID}/${serialNumber}-${toName}-${foundLabel.trackingID}-shippo-new.pdf`;
+    }
+
+    console.log("pdfNamePath", pdfNamePath);
+
+    const fontBold = "./fonts/arial_bold.TTF";
+    const fontRegular = "./fonts/Arial.ttf";
+
     // Output to a file
     doc.pipe(fs.createWriteStream(pdfNamePath));
 
-    doc.font("./fonts/prisma-sans-bold.ttf");
+    const borderX = 10;
+    const borderY = 10;
+    const borderWidth = 300;
+    const borderHeight = 450;
+    const border2X = 10.5;
+    const border2Y = 10.5;
+    const border2Width = 300;
+    const border2Height = 450;
+
+    // Draw the box (a rectangle)
+    doc.rect(borderX, borderY, borderWidth, borderHeight).stroke();
+    doc.rect(border2X, border2Y, border2Width, border2Height).stroke();
+
+    doc.font(fontBold);
 
     let isGroundAdvantage = foundLabel.shippingService
       .toLowerCase()
@@ -32,88 +73,101 @@ async function generateShippoNewPDF() {
     if (isGroundAdvantage) {
       tag = "G";
     }
-    doc.fontSize(70).text(tag, 18, -5);
+    doc.fontSize(70).text(tag, isGroundAdvantage ? 25 : 28, 15);
 
     // Draw vertical line
-    doc.moveTo(90, 0).lineTo(90, 90).stroke();
+    doc.moveTo(95, 10).lineTo(95, 95).stroke();
+    doc.moveTo(95.5, 10).lineTo(95.5, 95).stroke();
 
     // Define the position and dimensions of the box
-    const boxX = isGroundAdvantage ? 140 : 160;
-    const boxY = 12;
-    const boxWidth = isGroundAdvantage ? 130 : 110;
-    const boxHeight = 50;
+    const boxX = isGroundAdvantage ? 174 : 190;
+    const boxY = 30;
+    const box2X = isGroundAdvantage ? 174.5 : 190.5;
+    const box2Y = 30.5;
+    const boxWidth = isGroundAdvantage ? 103 : 85;
+    const boxHeight = 42;
 
     // Draw the box (a rectangle)
     doc.rect(boxX, boxY, boxWidth, boxHeight).stroke(); // `stroke()` draws the border, `fillAndStroke()` will fill and then draw the border
-    doc
-      .fontSize(8)
-      .text("CUBIC", isGroundAdvantage ? 190 : 200, boxY + boxHeight + 2);
+    doc.rect(box2X, box2Y, boxWidth, boxHeight).stroke(); // `stroke()` draws the border, `fillAndStroke()` will fill and then draw the border
 
     // Position the text inside the box
     doc
-      .fontSize(8)
+      .fontSize(7)
       .text(
         isGroundAdvantage ? "USPS GROUND ADVANTAGE" : "PRIORITY MAIL",
-        isGroundAdvantage ? boxX + 3 : boxX + 20,
+        isGroundAdvantage ? boxX + 3 : boxX + 17,
         boxY + 5
       );
     doc
-      .fontSize(8)
+      .fontSize(7)
       .text(
         "U.S. POSTAGE PAID",
-        isGroundAdvantage ? boxX + 23 : boxX + 10,
-        boxY + 15
+        isGroundAdvantage ? boxX + 16 : boxX + 8,
+        boxY + 14
       );
     doc
-      .fontSize(8)
-      .text("Shippo", isGroundAdvantage ? boxX + 50 : boxX + 40, boxY + 25);
+      .fontSize(7)
+      .text("Shippo", isGroundAdvantage ? boxX + 40 : boxX + 30, boxY + 21);
     doc
-      .fontSize(8)
-      .text("ePostage", isGroundAdvantage ? boxX + 45 : boxX + 35, boxY + 35);
+      .fontSize(7)
+      .text("ePostage", isGroundAdvantage ? boxX + 36 : boxX + 27, boxY + 29);
 
     // Draw line above shipping service name
-    doc.moveTo(0, 90).lineTo(288, 90).stroke();
+    doc.moveTo(10, 95).lineTo(310, 95).stroke();
+    doc.moveTo(10, 95.5).lineTo(310, 95.5).stroke();
 
     // // Draw Priority Mail/Ground Advantage text
     doc
-      .fontSize(isGroundAdvantage ? 16 : 20)
+      .fontSize(19)
       .text(
         isGroundAdvantage ? "USPS GROUND ADVANTAGE" : "USPS PRIORITY MAIL",
-        isGroundAdvantage ? 15 : 25,
-        isGroundAdvantage ? 95 : 92
+        isGroundAdvantage ? 19 : 60,
+        97
       );
 
     if (isGroundAdvantage) {
-      doc.fontSize(10).text("TM", 262, 94);
+      doc.fontSize(10).text("TM", 286, 98.5);
     }
     // Draw line below shipping service name
-    doc.moveTo(0, 120).lineTo(288, 120).stroke();
+    doc.moveTo(10, 120).lineTo(310, 120).stroke();
+    doc.moveTo(10, 120.5).lineTo(310, 120.5).stroke();
 
-    doc.font("./fonts/prisma-sans-roman.ttf");
+    doc.font(fontRegular);
 
     // // Sender address
-    let senderAddressCY = 125;
+    let senderAddressCY = 126;
+
     doc
       .fontSize(9)
-      .text(foundLabel.from_name.toUpperCase(), 8, senderAddressCY);
+      .text(foundLabel.from_name.toUpperCase(), 18, senderAddressCY);
+    senderAddressCY += 11;
+
     if (foundLabel.from_company) {
       doc
         .fontSize(9)
-        .text(foundLabel.from_company.toUpperCase(), 8, senderAddressCY + 11);
-      senderAddressCY = senderAddressCY + 11;
+        .text(foundLabel.from_company.toUpperCase(), 18, senderAddressCY);
+      senderAddressCY += 11;
     }
+
+    let combinedFromAddress =
+      foundLabel.from_address1.trim() + " " + foundLabel.from_address2.trim();
+
     doc
       .fontSize(9)
-      .text(foundLabel.from_address1.toUpperCase(), 8, senderAddressCY + 11);
-    senderAddressCY = senderAddressCY + 11;
+      .text(combinedFromAddress.toUpperCase(), 18, senderAddressCY, {
+        width: 150, // endX is the desired end point on the x-axis
+        align: "left", // you can also adjust alignment if needed
+      });
+    senderAddressCY += 11;
 
-    if (foundLabel.from_address2) {
-      doc.fontSize(9).text(
-        // `${foundLabel.from_address2.toUpperCase()} ${foundLabel.from_zip}`,
-        `${foundLabel.from_address2.toUpperCase()}`,
-        8,
-        senderAddressCY + 11
-      );
+    if (combinedFromAddress.length > 25) {
+      senderAddressCY = senderAddressCY + 11;
+    }
+    if (combinedFromAddress.length > 50) {
+      senderAddressCY = senderAddressCY + 11;
+    }
+    if (combinedFromAddress.length > 75) {
       senderAddressCY = senderAddressCY + 11;
     }
 
@@ -124,33 +178,62 @@ async function generateShippoNewPDF() {
       " " +
       foundLabel.from_zip;
 
-    doc.fontSize(9).text(sender_city_state_zip, 8, senderAddressCY + 11);
+    doc.fontSize(9).text(sender_city_state_zip, 18);
+    senderAddressCY += 11;
 
     // Add shipping data and weight information
     doc
       .fontSize(9)
-      .text(`Ship Date: ${formatDate(foundLabel.createdAt)}`, 177, 125);
-    doc.fontSize(9).text(`Weight : ${foundLabel.weight} lbs`, 216, 136);
-    doc
-      .fontSize(9)
-      .text(
-        `Dimensions : ${foundLabel.length} x ${foundLabel.width} x ${foundLabel.height}`,
-        159,
-        148
-      );
+      .text(`Ship Date: ${formatDateShippo(foundLabel.createdAt)}`, 222, 126);
+
+    if (foundLabel.weight?.toString().length > 1) {
+      doc.fontSize(9).text(`Weight : ${foundLabel.weight} lb`, 243, 138);
+    } else {
+      doc.fontSize(9).text(`Weight : ${foundLabel.weight} lb`, 250, 138);
+    }
+
+    let height = Math.ceil(foundLabel.height);
+    let width = Math.ceil(foundLabel.width);
+    let length = Math.ceil(foundLabel.length);
+
+    if (length > 10 && height > 10 && width > 10) {
+      doc
+        .fontSize(9)
+        .text(`Dimensions: ${length} x ${width} x ${height}`, 200, 150);
+    } else if (length < 10 && height < 10 && width < 10) {
+      doc
+        .fontSize(9)
+        .text(`Dimensions: ${length} x ${width} x ${height}`, 215, 150);
+    } else if (length > 10 && height > 10) {
+      doc
+        .fontSize(9)
+        .text(`Dimensions: ${length} x ${width} x ${height}`, 205, 150);
+    } else if (length > 10 && width > 10) {
+      doc
+        .fontSize(9)
+        .text(`Dimensions: ${length} x ${width} x ${height}`, 205, 150);
+    } else if (width > 10 && height > 10) {
+      doc
+        .fontSize(9)
+        .text(`Dimensions: ${length} x ${width} x ${height}`, 205, 150);
+    } else {
+      doc
+        .fontSize(9)
+        .text(`Dimensions: ${length} x ${width} x ${height}`, 210, 150);
+    }
 
     // Add QR code
     let qrCodePng = await generateQRCode(
       foundLabel.trackingID,
-      foundLabel.to_zip
+      foundLabel.to_zip.split("-")[0]
     );
-    doc.image(qrCodePng, 25, 210, { width: 35, height: 35 });
+    doc.image(qrCodePng, 18, 220, { width: 35, height: 35 });
 
-    let shiptodetailx = 65;
+    let shiptodetailx = 60;
 
     // Add to address
     // // Sender address
-    let recAddressCY = 210;
+    let recAddressCY = 218;
     doc
       .fontSize(10)
       .text(foundLabel.to_name.toUpperCase(), shiptodetailx, recAddressCY);
@@ -165,23 +248,20 @@ async function generateShippoNewPDF() {
       recAddressCY = recAddressCY + 12;
     }
 
+    let combinedAddress = foundLabel.to_address1 + " " + foundLabel.to_address2;
+
     doc
       .fontSize(10)
-      .text(
-        foundLabel.to_address1.toUpperCase(),
-        shiptodetailx,
-        recAddressCY + 12
-      );
+      .text(combinedAddress.toUpperCase(), shiptodetailx, recAddressCY + 12, {
+        width: 200, // endX is the desired end point on the x-axis
+        align: "left", // you can also adjust alignment if needed
+      });
     recAddressCY = recAddressCY + 12;
 
-    if (foundLabel.to_address2) {
-      doc
-        .fontSize(10)
-        .text(
-          foundLabel.to_address2.toUpperCase(),
-          shiptodetailx,
-          recAddressCY + 12
-        );
+    if (combinedAddress.length > 33) {
+      recAddressCY = recAddressCY + 12;
+    }
+    if (combinedAddress.length > 60) {
       recAddressCY = recAddressCY + 12;
     }
 
@@ -196,28 +276,35 @@ async function generateShippoNewPDF() {
       .fontSize(10)
       .text(receiver_city_state_zip, shiptodetailx, recAddressCY + 12);
 
-    doc.moveTo(0, 290).lineTo(288, 290).stroke();
+    doc.moveTo(10, 295).lineTo(310, 295).stroke();
+    doc.moveTo(10, 296).lineTo(310, 296).stroke();
+    doc.moveTo(10, 297).lineTo(310, 297).stroke();
 
-    doc.font("./fonts/prisma-sans-bold.ttf");
+    doc.font(fontBold);
 
-    doc.fontSize(10).text("USPS TRACKING # EP", 85, 295);
+    doc.fontSize(10).text("USPS TRACKING # EP", 100, 302);
 
     // Add barcode image
     let barCodePng = await generateNewBarcode(
       foundLabel.trackingID,
-      foundLabel.to_zip
+      foundLabel.to_zip.split("-")[0]
     );
 
-    doc.image(barCodePng, 16, 310, { height: 58, width: 258 });
+    doc.image(barCodePng, 40, 320, { height: 58, width: 240 });
 
     doc
       .fontSize(10)
-      .text(formatTrackingNumber(`${foundLabel.trackingID}`), 45, 370);
+      .text(formatTrackingNumber(`${foundLabel.trackingID}`), 85, 383);
 
-    doc.moveTo(0, 390).lineTo(288, 390).stroke();
+    doc.moveTo(10, 400).lineTo(310, 400).stroke();
+    doc.moveTo(10, 401).lineTo(310, 401).stroke();
+    doc.moveTo(10, 402).lineTo(310, 402).stroke();
 
-    doc.image("./assets/shippo_logo.png", 100, 400, { height: 32 });
-    doc.image(qrCodePng, 235, 400, { width: 35, height: 35 });
+    doc.image("./assets/shippo_logo.png", 115, 415, {
+      height: 28,
+    });
+
+    doc.image(qrCodePng, 260, 410, { width: 35, height: 35 });
 
     doc.end();
     console.log(`generated shippo new label check ... ${pdfNamePath}`);
